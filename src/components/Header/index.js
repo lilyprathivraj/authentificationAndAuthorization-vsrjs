@@ -1,7 +1,14 @@
-import {Link} from 'react-router-dom'
+import {Link, withRouter} from 'react-router-dom'
+import Cookies from 'js-cookie'
 import './index.css'
 
-const Header = () => (
+const Header = props => {
+  const onClickLogout = () =>{
+      const {history} = props
+      Cookies.remove('jwt_token')
+      history.replace('/login')
+  }
+  return(
   <nav className="nav-header">
     <div className="nav-content">
       <img
@@ -29,7 +36,7 @@ const Header = () => (
       <button type="button" className="logout-desktop-btn">
         Logout
       </button>
-      <button type="button" className="logout-mobile-btn">
+      <button type="button" className="logout-mobile-btn" onClick={onClickLogout}>
         <img
           src="https://assets.ccbp.in/frontend/react-js/nxt-trendz-log-out-img.png"
           alt="logout icon"
@@ -38,5 +45,6 @@ const Header = () => (
       </button>
     </div>
   </nav>
-)
-export default Header
+  )
+}
+export default withRouter(Header)
