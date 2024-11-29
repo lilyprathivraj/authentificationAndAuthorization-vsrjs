@@ -33,7 +33,7 @@ const Header = props => {
           </Link>
         </li>
       </ul>
-      <button type="button" className="logout-desktop-btn">
+      <button type="button" className="logout-desktop-btn" onClick={onClickLogout}>
         Logout
       </button>
       <button type="button" className="logout-mobile-btn" onClick={onClickLogout}>
