@@ -1,59 +1,94 @@
 import {Component} from 'react'
+import ClipLoader from 'react-spinners/ClipLoader'
 import Cookies from 'js-cookie'
+import ProductsHeader from '../ProductsHeader'
 import ProductCard from '../ProductCard'
 import './index.css'
 
+const sortbyOptions = [
+  {
+    optionId: 'PRICE_HIGH',
+    displayText: 'Price (High-Low)',
+  },
+  {
+    optionId: 'PRICE_LOW',
+    displayText: 'Price (Low-High)',
+  },
+]
+
 class AllProductsSection extends Component {
   state = {
+    activeOptionId: sortbyOptions[0].optionId,
     productsList: [],
+    isLoading: false,
   }
 
-  getProducts = async () => {
-      const url = "https://apis.ccbp.in/products"
-      const jwtToken = Cookies.get('jwt_token')
-      const option = {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
-      }
-      const response = await fetch(url, option)
-      if (response.ok === true){
-        const fetchedData = await response.json()
-        const updatedData = fetchedData.products.map(product => ({
-          brand:product.brand,
-          id:product.id,
-          imageUrl:product.image_url,
-          price:product.price,
-          rating:product.rating,
-          title:product.title,
-        }))
-        this.setState({
-          productsList: updatedData,
-        })
-      }
-  }
-
-  componentDidMount(){
+  componentDidMount() {
     this.getProducts()
   }
 
+  updateActiveOptionId = activeOptionId => {
+     this.setState({
+      activeOptionId,
+     },
+     this.getProducts)
+     
+  }
+
+  getProducts = async () => {
+    this.setState({
+      isLoading: true,
+    })
+    const {activeOptionId} = this.state
+    const jwtToken = Cookies.get('jwt_token')
+    const apiUrl = `https://apis.ccbp.in/products?sort_by=${activeOptionId}`
+    const options = {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      method: 'GET',
+    }
+    const response = await fetch(apiUrl, options)
+    if (response.ok) {
+      const fetchedData = await response.json()
+      const updatedData = fetchedData.products.map(product => ({
+        title: product.title,
+        brand: product.brand,
+        price: product.price,
+        id: product.id,
+        imageUrl: product.image_url,
+        rating: product.rating,
+      }))
+      this.setState({
+        productsList: updatedData,
+        isLoading: false,
+      })
+    }
+  }
+
   renderProductsList = () => {
-    const {productsList} = this.state
+    const {activeOptionId, productsList} = this.state
     return (
-      <div>
-        <h1 className="products-list-heading">All Products</h1>
+      <>
+        <ProductsHeader sortbyOptions={sortbyOptions} activeOptionId={activeOptionId} updateActiveOptionId={this.updateActiveOptionId} />
         <ul className="products-list">
           {productsList.map(product => (
             <ProductCard productData={product} key={product.id} />
           ))}
         </ul>
-      </div>
+      </>
     )
   }
 
+  renderLoader = () => (
+    <div className="products-loader-container">
+      <ClipLoader color="#0b69ff" height="50" width="50" />
+    </div>
+  )
+
   render() {
-    return <>{this.renderProductsList()}</>
+    const {isLoading} = this.state
+    return isLoading ? this.renderLoader() : this.renderProductsList()
   }
 }
 
