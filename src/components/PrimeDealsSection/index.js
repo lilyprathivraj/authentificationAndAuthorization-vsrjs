@@ -93,10 +93,10 @@ class PrimeDealsSection extends Component {
       switch(apiStatus){
         case apiStatusConstants.success:
           return this.renderPrimeDealsList()
-          case apiStatusConstants.failure:
-            return this.renderPrimeDealsFailureView()
-          case apiStatusConstants.inProgress:
-            return this.renderLoadingView()
+        case apiStatusConstants.failure:
+          return this.renderPrimeDealsFailureView()
+        case apiStatusConstants.inProgress:
+          return this.renderLoadingView()
         default:
           return null
       }
